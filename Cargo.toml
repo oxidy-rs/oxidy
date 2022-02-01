@@ -1,0 +1,10 @@
+[package]
+name = "oxidy"
+version = "0.0.1"
+authors = ["oxidy", "Krishna Torque"]
+edition = "2021"
+description = "Coming Soon"
+license = "GNU GPL V2"
+repository = "https://github.com/oxidy-rs/oxidy"
+
+[dependencies]
