@@ -138,14 +138,25 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
                 .map(|s| s.to_string())
                 .collect();
 
-            path_curr_split.remove(0);
+            let mut path_curr_split_filter: Vec<String> = Vec::new();
+            for p in path_curr_split {
+                if p.len() > 0 {
+                    path_curr_split_filter.push(p);
+                }
+            }
+            /*
+             * Check Split Length
+             */
+            if path_curr_split_filter.len() != path_split.len() {
+                continue;
+            }
 
             let mut prepare_path: String = String::from("");
             /*
              * Check Params
              */
-            for j in 0..path_curr_split.len() {
-                let path_elm = path_curr_split[j].clone();
+            for j in 0..path_curr_split_filter.len() {
+                let path_elm = path_curr_split_filter[j].clone();
                 /*
                  * First Element
                  */
