@@ -122,7 +122,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
              */
             let path_curr: String = i.0.to_lowercase();
             /*
-             * String Match
+             * Static Match
              */
             if path_curr == path {
                 (i.1)(&mut context);
@@ -130,7 +130,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
                 break;
             }
             /*
-             * Regex Match
+             * Dynamic Match
              */
             let mut path_curr_split: Vec<String> = path_curr
                 .clone()

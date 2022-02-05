@@ -1,3 +1,1 @@
-- Not to use Regex as much as possible
-- Try to replace REGEX with match
 - View Engine/Template

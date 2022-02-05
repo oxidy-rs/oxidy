@@ -1,4 +1,3 @@
-use regex::Regex;
 use std::collections::HashMap;
 
 pub(crate) fn parse(str: String) -> HashMap<String, String> {
@@ -29,7 +28,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         query = path_split[1].clone();
     }
     /*
-     * Http Version Regex
+     * Http Version
      */
     let mut http_version: String = "".to_string();
     if h_firstln.get(2).is_some() {
@@ -68,8 +67,10 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         /*
          * Filter Key
          */
-        let rex: Regex = Regex::new("[\r|\n|\t| |  |   ]").unwrap();
-        let k: String = rex.replace_all(&k, "").to_string();
+        let k: Vec<String> = k.split_whitespace().map(|x| x.to_string()).collect();
+        let k: String = k.join("");
+        let k: Vec<String> = k.lines().map(|x| x.to_string()).collect();
+        let k: String = k.join("");
         if k.len() < 1 {
             continue;
         }
