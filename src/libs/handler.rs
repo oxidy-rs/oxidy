@@ -54,9 +54,9 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      */
     let query: String = header.get("query").unwrap().to_string();
     if query.len() > 0 {
-        let query_split: Vec<String> = query.split("&").map(|x| x.to_string()).collect();
+        let query_split: Vec<String> = query.split("&").map(|s| s.to_string()).collect();
         for q in query_split {
-            let mut q_split: Vec<String> = q.split("=").map(|x| x.to_string()).collect();
+            let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
 
             if q_split.get(0).is_none() || q_split[0].len() < 1 {
                 continue;

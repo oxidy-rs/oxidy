@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 pub(crate) fn parse(str: String) -> HashMap<String, String> {
     let h: Vec<&str> = str.lines().collect();
-    let h_firstln: Vec<String> = h[0].split_whitespace().map(|x| x.to_string()).collect();
+    let h_firstln: Vec<String> = h[0].split_whitespace().map(|s| s.to_string()).collect();
     /*
      * Split path with Path & Query
      */
@@ -12,7 +12,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         path_split = h_firstln[1]
             .clone()
             .split("?")
-            .map(|x| x.to_string())
+            .map(|s| s.to_string())
             .collect();
     }
     /*
@@ -51,7 +51,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
 
     for i in 1..h.len() {
         let ln = h[i];
-        let mut ln_split: Vec<String> = ln.split_whitespace().map(str::to_string).collect();
+        let mut ln_split: Vec<String> = ln.split_whitespace().map(|s| s.to_string()).collect();
         if ln_split.len() < 1 {
             continue;
         }
@@ -67,9 +67,9 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         /*
          * Filter Key
          */
-        let k: Vec<String> = k.split_whitespace().map(|x| x.to_string()).collect();
+        let k: Vec<String> = k.split_whitespace().map(|s| s.to_string()).collect();
         let k: String = k.join("");
-        let k: Vec<String> = k.lines().map(|x| x.to_string()).collect();
+        let k: Vec<String> = k.lines().map(|s| s.to_string()).collect();
         let k: String = k.join("");
         if k.len() < 1 {
             continue;
