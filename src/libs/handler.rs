@@ -12,6 +12,8 @@ use std::net::TcpStream;
  * Handler
  */
 pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
+    let client_ip: String = stream.peer_addr().unwrap().to_string();
+    let client_ip: Vec<String> = client_ip.split(":").map(|s| s.to_string()).collect();
     /*
      * Buffer
      */
@@ -21,7 +23,8 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      * Request Header
      */
     let header: Cow<str> = String::from_utf8_lossy(&buffer);
-    let header: HashMap<String, String> = parse(header.to_string());
+    let mut header: HashMap<String, String> = parse(header.to_string());
+    header.insert("ip".to_string(), client_ip[0].to_string());
     /*
      * Response Header Default
      */
