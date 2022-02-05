@@ -1,10 +1,23 @@
 [package]
 name = "oxidy"
-version = "0.0.1"
-authors = ["oxidy", "Krishna Torque"]
+version = "0.1.0"
 edition = "2021"
-description = "Coming Soon"
-license = "GNU GPL V2"
+authors = ["Krishna Torque"]
+description = "Super Fast & High Performance minimalist web framework for rust"
+license = "GPL-2.0"
 repository = "https://github.com/oxidy-rs/oxidy"
 
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = "fat"
+codegen-units = 1
+incremental = false
+
 [dependencies]
+regex = "1.5.4"
+num_cpus = "1.13.1"
