@@ -1,7 +1,9 @@
-# 0.0 |
+# 0.3.1 | 2022-02-06
 
 - Added client IP to request header
 - Map Function Consistent Parameter
+- Improved Query Parser
+- Added Benchmark
 
 ## Breaking
 
