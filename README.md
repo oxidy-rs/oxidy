@@ -86,7 +86,23 @@ fn main() {
 - **cargo run** to run the server in development or **cargo run --release** to
   run the server in release profile.
 
-> Tested On Rust Stable Version & Edition 2021
+## Benchmark
+
+### Apache Bench:
+
+oxidy | Req/Sec: 16.5K | Latency: 60MS
+
+actix web | Req/Sec: 15.5K | Latency: 63MS
+
+### Loadtest
+
+oxidy | Req/Sec: 4.5K | Latency: 219MS
+
+actix web | Req/Sec: 2.9K | Latency: 339MS
+
+[Check Full Benchmark](https://github.com/oxidy-rs/oxidy/benchmark)
+
+Tested (2022-02-06) On Rust Stable Version & Edition 2021 With Release Flag
 
 # License
 
