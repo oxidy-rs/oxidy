@@ -38,7 +38,6 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
         request: Request {
             header: header.clone(),
             params: HashMap::new(),
-            query: HashMap::new(),
         },
         response: Response {
             header: response_header,
@@ -52,33 +51,6 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
     let path: String = header.get("path").unwrap().to_string().to_lowercase();
     let mut path_split: Vec<String> = path.clone().split("/").map(|s| s.to_string()).collect();
     path_split.remove(0);
-    /*
-     * Query String
-     */
-    let query: String = header.get("query").unwrap().to_string();
-    if query.len() > 0 {
-        let query_split: Vec<String> = query.split("&").map(|s| s.to_string()).collect();
-        for q in query_split {
-            let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
-
-            if q_split.get(0).is_none() || q_split[0].len() < 1 {
-                continue;
-            }
-
-            let k: String = q_split[0].clone().to_lowercase();
-            let mut v: String = "".to_string();
-
-            if q_split.get(1).is_some() {
-                v = q_split[1].clone();
-                if q_split.len() > 2 {
-                    let _ = q_split.remove(0);
-                    v = q_split.join("=").to_string();
-                }
-            }
-
-            context.request.query.insert(k, v);
-        }
-    }
     /*
      * Next Execution
      */

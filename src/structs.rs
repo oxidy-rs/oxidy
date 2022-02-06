@@ -40,6 +40,9 @@ pub struct Request {
     /// assert_eq!((), a);
     /// ```
     pub params: HashMap<String, String>,
+}
+
+impl Request {
     /// Get Request Query Strings
     ///
     /// # Example
@@ -49,7 +52,7 @@ pub struct Request {
     /// use oxidy::server::Server;
     ///
     /// fn user (ctx: &mut Context) -> () {
-    ///     let user = ctx.request.query.get("user").unwrap();
+    ///     let user: String = ctx.request.query().get("user").unwrap().to_string();
     ///     println!("User is: {}", user);
     /// }
     ///
@@ -57,7 +60,35 @@ pub struct Request {
     /// let a = app.get("/user?user=username", user);
     /// assert_eq!((), a);
     /// ```
-    pub query: HashMap<String, String>,
+    pub fn query(&self) -> HashMap<String, String> {
+        let mut query_str: HashMap<String, String> = HashMap::new();
+        let query_hstr: String = self.header.get("query").unwrap().to_string();
+        if query_hstr.len() > 0 {
+            let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
+            for q in query_split {
+                let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
+
+                if q_split.get(0).is_none() || q_split[0].len() < 1 {
+                    continue;
+                }
+
+                let k: String = q_split[0].clone().to_lowercase();
+                let mut v: String = "".to_string();
+
+                if q_split.get(1).is_some() {
+                    v = q_split[1].clone();
+                    if q_split.len() > 2 {
+                        let _ = q_split.remove(0);
+                        v = q_split.join("=").to_string();
+                    }
+                }
+
+                query_str.insert(k, v);
+            }
+        }
+
+        query_str
+    }
 }
 /*
  * Response

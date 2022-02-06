@@ -2,7 +2,7 @@
 name = "oxidy"
 version = "0.2.1"
 edition = "2021"
-authors = ["Krishna Torque"]
+authors = ["KrishnaTorque"]
 license = "GPL-2.0"
 description = "Super Fast & High Performance minimalist web framework for rust"
 repository = "https://github.com/oxidy-rs/oxidy"
