@@ -1,9 +1,10 @@
 use crate::libs::handler::handler;
-use crate::libs::threadpool::ThreadPool;
 use crate::structs::Context;
 use crate::structs::Middleware;
+use num_cpus;
 use std::io::ErrorKind::WouldBlock;
 use std::net::TcpListener;
+use threadpool::ThreadPool;
 
 pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
 
@@ -28,6 +29,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::structs::Middleware;
     /// use oxidy::server::Server;
+    /// use std::time::Instant;
     ///
     /// fn mid (_: &mut Context) -> Middleware {
     ///     println!("Middleware Function");
@@ -204,7 +206,16 @@ impl Server {
         /*
          * Thread Pool
          */
-        let pool: ThreadPool = ThreadPool::new(self.allow_threads);
+        let mut size: usize = self.allow_threads;
+        if size < 1 {
+            size = num_cpus::get();
+            if size < num_cpus::get_physical() {
+                size = num_cpus::get_physical();
+            }
+        }
+        println!("{}", size);
+        let pool: ThreadPool = ThreadPool::new(size);
+        drop(size);
         /*
          * Log
          */

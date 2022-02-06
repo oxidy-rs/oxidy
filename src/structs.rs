@@ -126,11 +126,11 @@ pub struct Response {
     /// use oxidy::server::Server;
     ///
     /// fn index (ctx: &mut Context) -> () {
-    ///     # To Get Body
-    ///     let body = ctx.response.body;
+    ///     /* To Get Body */
+    ///     let body = &ctx.response.body;
     ///     println!("{}", body);
     ///
-    ///     # To Set Body
+    ///     /* To Set Body */
     ///     ctx.response.body = "<h1>Hello World</h1>".to_string();
     /// }
     ///

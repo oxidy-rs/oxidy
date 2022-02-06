@@ -107,7 +107,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             /*
              * Dynamic Match
              */
-            let mut path_curr_split: Vec<String> = path_curr
+            let path_curr_split: Vec<String> = path_curr
                 .clone()
                 .split("/")
                 .map(|s| s.to_string())
