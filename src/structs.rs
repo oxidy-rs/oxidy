@@ -84,7 +84,7 @@ impl Request {
             if kv.get(1).is_some() {
                 v = kv[1].clone();
                 if kv.len() > 2 {
-                    let _ = kv.remove(0);
+                    kv.remove(0);
                     v = kv.join("=").to_string();
                 }
             }

@@ -82,7 +82,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         if ln_split.get(1).is_some() {
             v = ln_split[1].clone().to_string();
             if ln_split.len() > 2 {
-                let _ = ln_split.remove(0);
+                ln_split.remove(0);
                 v = ln_split.join(" ").to_string();
             }
         }
