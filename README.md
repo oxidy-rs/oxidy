@@ -68,9 +68,6 @@ oxidy = "<version>"
 
 - Paste this code below in your **src/main.rs** file
 
-- **cargo run** to run the server in development or **cargo run --release** to
-  run the server in release profile.
-
 ```rust
 use oxidy::structs::Context;
 use oxidy::server::Server;
@@ -85,6 +82,9 @@ fn main() {
     app.listen("127.0.0.1:3000");
 }
 ```
+
+- **cargo run** to run the server in development or **cargo run --release** to
+  run the server in release profile.
 
 > Tested On Rust Stable Version & Edition 2021
 
