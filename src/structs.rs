@@ -62,29 +62,34 @@ impl Request {
     /// ```
     pub fn query(&self) -> HashMap<String, String> {
         let mut query_str: HashMap<String, String> = HashMap::new();
+
         let query_hstr: String = self.header.get("query").unwrap().to_string();
-        if query_hstr.len() > 0 {
-            let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
-            for q in query_split {
-                let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
 
-                if q_split.get(0).is_none() || q_split[0].len() < 1 {
-                    continue;
-                }
+        if query_hstr.len() < 1 {
+            return query_str;
+        }
 
-                let k: String = q_split[0].clone().to_lowercase();
-                let mut v: String = "".to_string();
+        let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
 
-                if q_split.get(1).is_some() {
-                    v = q_split[1].clone();
-                    if q_split.len() > 2 {
-                        let _ = q_split.remove(0);
-                        v = q_split.join("=").to_string();
-                    }
-                }
+        for q in query_split {
+            let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
 
-                query_str.insert(k, v);
+            if q_split.get(0).is_none() || q_split[0].len() < 1 {
+                continue;
             }
+
+            let k: String = q_split[0].clone().to_lowercase();
+            let mut v: String = "".to_string();
+
+            if q_split.get(1).is_some() {
+                v = q_split[1].clone();
+                if q_split.len() > 2 {
+                    let _ = q_split.remove(0);
+                    v = q_split.join("=").to_string();
+                }
+            }
+
+            query_str.insert(k, v);
         }
 
         query_str
