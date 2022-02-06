@@ -100,7 +100,7 @@ oxidy | Req/Sec: 4.5K | Latency: 219MS
 
 actix web | Req/Sec: 2.9K | Latency: 339MS
 
-[Check Full Benchmark](https://github.com/oxidy-rs/oxidy/benchmark)
+[Check Full Benchmark](benchmark)
 
 Tested (2022-02-06) On Rust Stable Version & Edition 2021 With Release Flag
 
