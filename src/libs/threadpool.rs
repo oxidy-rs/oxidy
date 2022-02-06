@@ -38,8 +38,7 @@ impl ThreadPool {
     where
         F: FnOnce() + Send + 'static,
     {
-        let job: Box<F> = Box::new(f);
-        self.sender.send(job).unwrap();
+        self.sender.send(Box::new(f)).unwrap();
     }
 }
 /*
@@ -53,8 +52,7 @@ struct Worker {
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let job: Job = receiver.lock().unwrap().recv().unwrap();
-            job();
+            receiver.lock().unwrap().recv().unwrap();
         });
         Worker { id, thread }
     }

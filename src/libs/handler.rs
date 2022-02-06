@@ -17,7 +17,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
     /*
      * Buffer
      */
-    let mut buffer: [u8; 1024 * 8] = [0; 1024 * 8];
+    let mut buffer: [u8; 1024] = [0; 1024];
     stream.read(&mut buffer).unwrap();
     /*
      * Request Header

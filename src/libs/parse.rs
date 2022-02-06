@@ -69,8 +69,6 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
          */
         let k: Vec<String> = k.split_whitespace().map(|s| s.to_string()).collect();
         let k: String = k.join("");
-        let k: Vec<String> = k.lines().map(|s| s.to_string()).collect();
-        let k: String = k.join("");
         if k.len() < 1 {
             continue;
         }
