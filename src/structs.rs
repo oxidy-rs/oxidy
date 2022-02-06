@@ -72,20 +72,20 @@ impl Request {
         let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
 
         for q in query_split {
-            let mut q_split: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
+            let mut kv: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
 
-            if q_split.get(0).is_none() || q_split[0].len() < 1 {
+            if kv.get(0).is_none() || kv[0].len() < 1 {
                 continue;
             }
 
-            let k: String = q_split[0].clone().to_lowercase();
+            let k: String = kv[0].clone().to_lowercase();
             let mut v: String = "".to_string();
 
-            if q_split.get(1).is_some() {
-                v = q_split[1].clone();
-                if q_split.len() > 2 {
-                    let _ = q_split.remove(0);
-                    v = q_split.join("=").to_string();
+            if kv.get(1).is_some() {
+                v = kv[1].clone();
+                if kv.len() > 2 {
+                    let _ = kv.remove(0);
+                    v = kv.join("=").to_string();
                 }
             }
 
