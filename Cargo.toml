@@ -1,6 +1,6 @@
 [package]
 name = "oxidy"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 authors = ["KrishnaTorque"]
 license = "GPL-2.0"
@@ -23,4 +23,4 @@ codegen-units = 1
 incremental = false
 
 [dependencies]
-num_cpus = "1.13.1"
+num_cpus = "^1.13.1"
