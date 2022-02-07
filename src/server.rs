@@ -3,8 +3,6 @@ use crate::structs::Context;
 use crate::structs::Middleware;
 use num_cpus;
 use std::net::TcpListener;
-use std::thread;
-use std::thread::JoinHandle;
 use threadpool::ThreadPool;
 
 pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
@@ -39,7 +37,7 @@ impl Server {
     ///         true,
     ///         Some(Box::new(move |_: &mut Context| {
     ///             let end = Instant::now();
-    ///             println!("Response takes: {:?}", end - start);
+    ///             println!("Response Time: {:?}", end.duration_since(start));
     ///         })),
     ///     )
     /// }
@@ -215,26 +213,18 @@ impl Server {
          * Thread Pool Create
          */
         let pool: ThreadPool = ThreadPool::new(size);
+        let pool_listener: ThreadPool = ThreadPool::new(size);
         /*
          * Fork Listener
          */
-        let mut forks: Vec<JoinHandle<()>> = Vec::new();
-
         for _ in 0..size {
             let pool_cp: ThreadPool = pool.clone();
             let listener_cp: TcpListener = listener.try_clone().unwrap();
             let server_cp: Server = self.clone();
-
-            let join_handle: JoinHandle<()> = thread::spawn(move || {
-                fork(pool_cp, listener_cp, server_cp);
-            });
-
-            forks.push(join_handle);
+            pool_listener.execute(move || fork(pool_cp, listener_cp, server_cp));
         }
 
-        for f in forks {
-            f.join().unwrap();
-        }
+        pool_listener.join();
     }
 }
 /// New Server Instence
