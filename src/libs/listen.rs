@@ -6,7 +6,7 @@ use threadpool::ThreadPool;
 /*
  * Listener to Fork
  */
-pub(crate) fn fork(pool: ThreadPool, listener: TcpListener, server: Server) -> () {
+pub(crate) fn listen(pool: ThreadPool, listener: TcpListener, server: Server) -> () {
     loop {
         let accept = listener.accept();
         match accept {

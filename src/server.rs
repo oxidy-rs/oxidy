@@ -1,4 +1,4 @@
-use crate::libs::fork::fork;
+use crate::libs::listen::listen;
 use crate::structs::Context;
 use crate::structs::Middleware;
 use num_cpus;
@@ -221,7 +221,7 @@ impl Server {
             let pool_cp: ThreadPool = pool.clone();
             let listener_cp: TcpListener = listener.try_clone().unwrap();
             let server_cp: Server = self.clone();
-            pool_listener.execute(move || fork(pool_cp, listener_cp, server_cp));
+            pool_listener.execute(move || listen(pool_cp, listener_cp, server_cp));
         }
 
         pool_listener.join();
