@@ -14,7 +14,7 @@ fn mid(_: &mut Context) -> Middleware {
         true,
         Some(Box::new(move |_: &mut Context| {
             let end = Instant::now();
-            println!("Response Time: {:?}", end - start);
+            println!("Response Time: {:?}", end.duration_since(start));
         })),
     )
 }

@@ -218,7 +218,7 @@ impl Server {
         /*
          * Fork Listener
          */
-        let mut forks: Vec<_> = Vec::new();
+        let mut forks: Vec<JoinHandle<()>> = Vec::new();
 
         for _ in 0..size {
             let pool_cp: ThreadPool = pool.clone();
