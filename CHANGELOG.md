@@ -1,8 +1,8 @@
 #
 
-- Removed Unnecessary Codes & variables
+- Removed Unnecessary Codes & variables & Loops.
 - Replace own Threadpool with crate.io "threadpool"
--
+- Implemented fork for gain more performance
 
 # 0.3.1 | 2022-02-06
 
