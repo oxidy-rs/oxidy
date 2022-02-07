@@ -12,8 +12,6 @@ use std::net::TcpStream;
  * Handler
  */
 pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
-    let client_ip: String = stream.peer_addr().unwrap().to_string();
-    let client_ip: Vec<String> = client_ip.split(":").map(|s| s.to_string()).collect();
     /*
      * Buffer
      */
@@ -22,9 +20,14 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
     /*
      * Request Header
      */
-    let header: Cow<str> = String::from_utf8_lossy(&buffer);
+    let header: Cow<str> = String::from_utf8_lossy(&buffer[..]);
     let mut header: HashMap<String, String> = parse(header.to_string());
-    header.insert("ip".to_string(), client_ip[0].to_string());
+    /*
+     * Client IP
+     */
+    let client_ip: String = stream.peer_addr().unwrap().to_string();
+    let client_ip: String = client_ip.split(":").next().unwrap_or("").to_string();
+    header.insert("ip".to_string(), client_ip);
     /*
      * Response Header Default
      */
@@ -60,12 +63,15 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      */
     let r: Vec<MiddlewareCallback> = server.middlewares;
     let mut middleware_ends: Vec<Box<dyn Fn(&mut Context) -> ()>> = Vec::new();
+
     for i in r {
         let (next, next_callback) = (i)(&mut context);
+
         if !next {
             next_exec = false;
             break;
         }
+
         if next_callback.is_some() {
             middleware_ends.push(next_callback.unwrap());
         }
@@ -107,22 +113,18 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             /*
              * Dynamic Match
              */
-            let path_curr_split: Vec<String> = path_curr
-                .clone()
-                .split("/")
-                .map(|s| s.to_string())
-                .collect();
+            let mut path_curr_split: Vec<String> = Vec::new();
 
-            let mut path_curr_split_filter: Vec<String> = Vec::new();
-            for p in path_curr_split {
+            for p in path_curr.split("/") {
+                let p = p.to_string();
                 if p.len() > 0 {
-                    path_curr_split_filter.push(p);
+                    path_curr_split.push(p);
                 }
             }
             /*
              * Check Split Length
              */
-            if path_curr_split_filter.len() != path_split.len() {
+            if path_curr_split.len() != path_split.len() {
                 continue;
             }
 
@@ -130,21 +132,13 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             /*
              * Check Params
              */
-            for j in 0..path_curr_split_filter.len() {
-                let path_elm = path_curr_split_filter[j].clone();
-                /*
-                 * First Element
-                 */
-                if path_elm.len() < 1 {
-                    continue;
-                }
-
-                let path_elm_char: String = path_elm.clone().chars().nth(0).unwrap().to_string();
-
+            for j in 0..path_curr_split.len() {
+                let path_elm: String = path_curr_split[j].clone();
+                let path_char: String = path_elm.clone().chars().nth(0).unwrap().to_string();
                 /*
                  * Dynamic Param
                  */
-                if path_elm_char == ":" {
+                if path_char == ":" {
                     prepare_path.push_str(&format!("/{}", path_elm));
                     context
                         .request

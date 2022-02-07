@@ -1,9 +1,10 @@
-use crate::libs::handler::handler;
+use crate::libs::fork::fork;
 use crate::structs::Context;
 use crate::structs::Middleware;
 use num_cpus;
-use std::io::ErrorKind::WouldBlock;
 use std::net::TcpListener;
+use std::thread;
+use std::thread::JoinHandle;
 use threadpool::ThreadPool;
 
 pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
@@ -193,40 +194,46 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.listen("127.0.0.1:3000");
     /// assert_eq!((), a);
-    /// ```*/
+    /// ``` */
     pub fn listen(&self, address: &'static str) -> () {
         /*
          * Bind Server
          */
-        let server: TcpListener = TcpListener::bind(address).unwrap();
+        let listener: TcpListener = TcpListener::bind(address).unwrap();
         /*
-         * Set Non Blocking
-         */
-        server.set_nonblocking(true).unwrap();
-        /*
-         * Thread Pool
+         * Thread Pool Size
          */
         let mut size: usize = self.allow_threads;
+
         if size < 1 {
             size = num_cpus::get();
             if size < num_cpus::get_physical() {
                 size = num_cpus::get_physical();
             }
         }
-        let pool: ThreadPool = ThreadPool::new(size);
-        drop(size);
         /*
-         * Handle Client
+         * Thread Pool Create
          */
-        for stream in server.incoming() {
-            match stream {
-                Ok(stream) => {
-                    let server_cp = self.clone();
-                    pool.execute(move || handler(stream, server_cp));
-                }
-                Err(ref e) if e.kind() == WouldBlock => continue,
-                Err(e) => println!("Error: Stream Failed: {}", e),
-            }
+        let pool: ThreadPool = ThreadPool::new(size);
+        /*
+         * Fork Listener
+         */
+        let mut forks: Vec<_> = Vec::new();
+
+        for _ in 0..size {
+            let pool_cp: ThreadPool = pool.clone();
+            let listener_cp: TcpListener = listener.try_clone().unwrap();
+            let server_cp: Server = self.clone();
+
+            let join_handle: JoinHandle<()> = thread::spawn(move || {
+                fork(pool_cp, listener_cp, server_cp);
+            });
+
+            forks.push(join_handle);
+        }
+
+        for f in forks {
+            f.join().unwrap();
         }
     }
 }

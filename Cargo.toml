@@ -23,5 +23,5 @@ codegen-units = 1
 incremental = false
 
 [dependencies]
-num_cpus = "1.13.1"
-threadpool = "1.8.1"
+num_cpus = "^1.13.1"
+threadpool = "^1.8.1"

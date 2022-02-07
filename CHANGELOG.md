@@ -1,3 +1,9 @@
+#
+
+- Removed Unnecessary Codes & variables
+- Replace own Threadpool with crate.io "threadpool"
+-
+
 # 0.3.1 | 2022-02-06
 
 - Added client IP to request header
