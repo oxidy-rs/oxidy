@@ -213,13 +213,8 @@ impl Server {
                 size = num_cpus::get_physical();
             }
         }
-        println!("{}", size);
         let pool: ThreadPool = ThreadPool::new(size);
         drop(size);
-        /*
-         * Log
-         */
-        println!("Listening [{}]", address);
         /*
          * Handle Client
          */
