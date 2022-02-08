@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 pub(crate) fn parse(str: String) -> HashMap<String, String> {
-    let h: Vec<&str> = str.lines().collect();
+    let mut h: Vec<&str> = str.lines().collect();
     let h_firstln: Vec<String> = h[0].split_whitespace().map(|s| s.to_string()).collect();
+    h.remove(0);
     /*
      * Split path with Path & Query
      */
@@ -49,11 +50,10 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
     header.insert("query".to_string(), query);
     header.insert("http-version".to_string(), http_version);
 
-    for i in 1..h.len() {
-        let ln = h[i];
+    h.iter().for_each(|ln| {
         let mut ln_split: Vec<String> = ln.split_whitespace().map(|s| s.to_string()).collect();
         if ln_split.len() < 1 {
-            continue;
+            return;
         }
         /*
          * Key
@@ -70,7 +70,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         let k: Vec<String> = k.split_whitespace().map(|s| s.to_string()).collect();
         let k: String = k.join("");
         if k.len() < 1 {
-            continue;
+            return;
         }
         /*
          * Value
@@ -86,7 +86,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
         }
 
         header.insert(k, v);
-    }
+    });
     /*
      * Return Parsed Data
      */

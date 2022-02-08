@@ -1,7 +1,7 @@
 /*
  * Get HTTP Response Status String from Status Code.
  * Added Most Used Codes.
- * Feel free to make PR for More Codes.
+ * Feel free to make PR for More Status Codes.
  * More Info: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
  */
 pub(crate) fn http_status_string(code: String) -> String {

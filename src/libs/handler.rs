@@ -52,8 +52,12 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      * Incoming Path
      */
     let path: String = header.get("path").unwrap().to_string().to_lowercase();
-    let mut path_split: Vec<String> = path.clone().split("/").map(|s| s.to_string()).collect();
-    path_split.remove(0);
+    let path_split: Vec<String> = path
+        .clone()
+        .split("/")
+        .filter(|s| s.len() > 0)
+        .map(|s| s.to_string())
+        .collect();
     /*
      * Next Execution
      */
@@ -64,18 +68,22 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
     let r: Vec<MiddlewareCallback> = server.middlewares;
     let mut middleware_ends: Vec<Box<dyn Fn(&mut Context) -> ()>> = Vec::new();
 
-    for i in r {
+    r.iter().for_each(|i| {
+        if !next_exec {
+            return;
+        }
+
         let (next, next_callback) = (i)(&mut context);
 
         if !next {
             next_exec = false;
-            break;
+            return;
         }
 
         if next_callback.is_some() {
             middleware_ends.push(next_callback.unwrap());
         }
-    }
+    });
 
     if next_exec {
         /*
@@ -97,7 +105,10 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
 
         let mut is_found: bool = false;
 
-        for i in r {
+        r.iter().for_each(|i| {
+            if is_found {
+                return;
+            }
             /*
              * Current Path
              */
@@ -108,59 +119,58 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             if path_curr == path {
                 (i.1)(&mut context);
                 is_found = true;
-                break;
+                return;
             }
             /*
              * Dynamic Match
              */
-            let mut path_curr_split: Vec<String> = Vec::new();
+            let path_curr_split: Vec<String> = path_curr
+                .split("/")
+                .filter(|s| s.len() > 0)
+                .map(|s| s.to_string())
+                .collect();
 
-            for p in path_curr.split("/") {
-                let p = p.to_string();
-                if p.len() > 0 {
-                    path_curr_split.push(p);
-                }
-            }
             /*
              * Check Split Length
              */
             if path_curr_split.len() != path_split.len() {
-                continue;
+                return;
             }
 
             let mut prepare_path: String = String::from("");
-            /*
-             * Check Params
-             */
-            for j in 0..path_curr_split.len() {
-                let path_elm: String = path_curr_split[j].clone();
-                let path_char: String = path_elm.clone().chars().nth(0).unwrap().to_string();
-                /*
-                 * Dynamic Param
-                 */
-                if path_char == ":" {
-                    prepare_path.push_str(&format!("/{}", path_elm));
-                    context
-                        .request
-                        .params
-                        .insert(path_elm.replace(":", ""), path_split[j].to_string());
-                }
-                /*
-                 * Static Param
-                 */
-                else if path_elm == path_split[j] {
-                    prepare_path.push_str(&format!("/{}", path_elm));
-                }
-            }
+
+            path_curr_split
+                .into_iter()
+                .enumerate()
+                .for_each(|(j, path_curr_elm)| {
+                    let path_char: String =
+                        path_curr_elm.clone().chars().nth(0).unwrap().to_string();
+                    /*
+                     * Dynamic Param
+                     */
+                    if path_char == ":" {
+                        prepare_path.push_str(&format!("/{}", path_curr_elm));
+
+                        context
+                            .request
+                            .params
+                            .insert(path_curr_elm.replace(":", ""), path_split[j].to_string());
+                    }
+                    /*
+                     * Static Param
+                     */
+                    else if path_curr_elm == path_split[j] {
+                        prepare_path.push_str(&format!("/{}", path_curr_elm));
+                    }
+                });
             /*
              * Match current path with prepare path
              */
             if path_curr == prepare_path {
                 (i.1)(&mut context);
                 is_found = true;
-                break;
             }
-        }
+        });
         /*
          * Error
          */
@@ -192,20 +202,18 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
         /*
          * Middlewares End
          */
-        for i in middleware_ends.iter().rev() {
-            (i)(&mut context);
-        }
+        middleware_ends.iter().rev().for_each(|i| (i)(&mut context));
     }
     /*
      * Prepare Response Headers
      */
     let mut response_header: String = String::from("");
-    for (k, v) in &context.response.header {
+    context.response.header.iter().for_each(|(k, v)| {
         if k == "status" || k == "type" {
-            continue;
+            return;
         }
         response_header.push_str(&format!("{}: {}\r\n", k, v));
-    }
+    });
     /*
      * Prepare Response Payload
      */

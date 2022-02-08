@@ -217,12 +217,12 @@ impl Server {
         /*
          * Fork Listener
          */
-        for _ in 0..size {
+        (0..size).for_each(|_| {
             let pool_cp: ThreadPool = pool.clone();
             let listener_cp: TcpListener = listener.try_clone().unwrap();
             let server_cp: Server = self.clone();
             pool_listener.execute(move || listen(pool_cp, listener_cp, server_cp));
-        }
+        });
 
         pool_listener.join();
     }

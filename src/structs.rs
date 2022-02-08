@@ -71,11 +71,11 @@ impl Request {
 
         let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
 
-        for q in query_split {
+        query_split.iter().for_each(|q| {
             let mut kv: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
 
             if kv.get(0).is_none() || kv[0].len() < 1 {
-                continue;
+                return;
             }
 
             let k: String = kv[0].clone().to_lowercase();
@@ -90,7 +90,7 @@ impl Request {
             }
 
             query_str.insert(k, v);
-        }
+        });
 
         query_str
     }
