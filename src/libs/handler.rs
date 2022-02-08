@@ -68,22 +68,18 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
     let r: Vec<MiddlewareCallback> = server.middlewares;
     let mut middleware_ends: Vec<Box<dyn Fn(&mut Context) -> ()>> = Vec::new();
 
-    r.iter().for_each(|i| {
-        if !next_exec {
-            return;
-        }
-
+    for i in r {
         let (next, next_callback) = (i)(&mut context);
 
         if !next {
             next_exec = false;
-            return;
+            break;
         }
 
         if next_callback.is_some() {
             middleware_ends.push(next_callback.unwrap());
         }
-    });
+    }
 
     if next_exec {
         /*
@@ -105,10 +101,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
 
         let mut is_found: bool = false;
 
-        r.iter().for_each(|i| {
-            if is_found {
-                return;
-            }
+        for i in r {
             /*
              * Current Path
              */
@@ -119,7 +112,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             if path_curr == path {
                 (i.1)(&mut context);
                 is_found = true;
-                return;
+                break;
             }
             /*
              * Dynamic Match
@@ -134,7 +127,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
              * Check Split Length
              */
             if path_curr_split.len() != path_split.len() {
-                return;
+                continue;
             }
 
             let mut prepare_path: String = String::from("");
@@ -169,8 +162,9 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
             if path_curr == prepare_path {
                 (i.1)(&mut context);
                 is_found = true;
+                break;
             }
-        });
+        }
         /*
          * Error
          */
