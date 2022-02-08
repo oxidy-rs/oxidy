@@ -1,7 +1,7 @@
+use crate::libs::cpus::cpus;
 use crate::libs::listen::listen;
 use crate::structs::Context;
 use crate::structs::Middleware;
-use num_cpus;
 use std::net::TcpListener;
 use threadpool::ThreadPool;
 
@@ -202,12 +202,8 @@ impl Server {
          * Thread Pool Size
          */
         let mut size: usize = self.allow_threads;
-
         if size < 1 {
-            size = num_cpus::get();
-            if size < num_cpus::get_physical() {
-                size = num_cpus::get_physical();
-            }
+            size = cpus();
         }
         /*
          * Thread Pool Create
