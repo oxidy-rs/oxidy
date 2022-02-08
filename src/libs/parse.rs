@@ -10,11 +10,7 @@ pub(crate) fn parse(str: String) -> HashMap<String, String> {
     let mut path_split: Vec<String> = vec!["/".to_string()];
 
     if h_firstln.get(1).is_some() {
-        path_split = h_firstln[1]
-            .clone()
-            .split("?")
-            .map(|s| s.to_string())
-            .collect();
+        path_split = h_firstln[1].split("?").map(|s| s.to_string()).collect();
     }
     /*
      * Separate Path & Query

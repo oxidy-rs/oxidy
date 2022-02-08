@@ -53,7 +53,6 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      */
     let path: String = header.get("path").unwrap().to_string().to_lowercase();
     let path_split: Vec<String> = path
-        .clone()
         .split("/")
         .filter(|s| s.len() > 0)
         .map(|s| s.to_string())
