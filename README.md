@@ -43,13 +43,14 @@ This project is highly inspired by
 
 ## Features
 
-- Main Focus on Super Fast & High Performance.
-- Very minimum LOC (Lines of code).
-- No Unsafe Code.
-- Robust Routing.
-- Allow Middlewares.
-- Easy to build your own middleware;
-- Allow Multi Threading.
+- Main Focus on Super Fast & High Performance
+- Very minimum LOC (Lines of code)
+- No Unsafe Code
+- Robust Routing
+- Allow Middlewares
+- Easy to build your own middleware
+- Allow Multi Threading
+- Allow Concurrency
 
 ## Install
 

@@ -25,3 +25,4 @@ incremental = false
 [dependencies]
 num_cpus = "^1.13.1"
 threadpool = "^1.8.1"
+futures = "^0.3.21"

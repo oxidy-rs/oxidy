@@ -1,7 +1,6 @@
 use crate::libs::cpus::cpus;
 use crate::libs::listen::listen;
-use crate::structs::Context;
-use crate::structs::Middleware;
+use crate::structs::{Context, Middleware};
 use std::net::TcpListener;
 use threadpool::ThreadPool;
 
@@ -208,16 +207,14 @@ impl Server {
         /*
          * Thread Pool Create
          */
-        let pool: ThreadPool = ThreadPool::new(size);
         let pool_listener: ThreadPool = ThreadPool::new(size);
         /*
          * Fork Listener
          */
         (0..size).for_each(|_| {
-            let pool_cp: ThreadPool = pool.clone();
             let listener_cp: TcpListener = listener.try_clone().unwrap();
             let server_cp: Server = self.clone();
-            pool_listener.execute(move || listen(pool_cp, listener_cp, server_cp));
+            pool_listener.execute(move || listen(listener_cp, server_cp));
         });
 
         pool_listener.join();

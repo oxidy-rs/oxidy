@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-pub(crate) fn parse(str: String) -> HashMap<String, String> {
+pub(crate) async fn parse(str: String) -> HashMap<String, String> {
     let mut h: Vec<&str> = str.lines().collect();
     let h_firstln: Vec<String> = h[0].split_whitespace().map(|s| s.to_string()).collect();
     h.remove(0);

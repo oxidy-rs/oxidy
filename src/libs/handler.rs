@@ -1,7 +1,6 @@
 use crate::libs::http_status_string::http_status_string;
 use crate::libs::parse::parse;
-use crate::server::MiddlewareCallback;
-use crate::server::Server;
+use crate::server::{MiddlewareCallback, Server};
 use crate::structs::{Context, Request, Response};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -11,7 +10,7 @@ use std::net::TcpStream;
 /*
  * Handler
  */
-pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
+pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
     /*
      * Buffer
      */
@@ -21,7 +20,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      * Request Header
      */
     let header: Cow<str> = String::from_utf8_lossy(&buffer[..]);
-    let mut header: HashMap<String, String> = parse(header.to_string());
+    let mut header: HashMap<String, String> = parse(header.to_string()).await;
     /*
      * Client IP
      */
@@ -65,6 +64,7 @@ pub(crate) fn handler(mut stream: TcpStream, server: Server) -> () {
      * Middlewares
      */
     let r: Vec<MiddlewareCallback> = server.middlewares;
+
     let mut middleware_ends: Vec<Box<dyn Fn(&mut Context) -> ()>> = Vec::new();
 
     for i in r {
