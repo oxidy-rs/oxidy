@@ -1,7 +1,9 @@
+use crate::libs::found_callback::{found_callback, IsFound};
 use crate::libs::http_status_string::http_status_string;
 use crate::libs::parse::parse;
-use crate::server::{MiddlewareCallback, Server};
-use crate::structs::{Context, Request, Response};
+use crate::server::Server;
+use crate::structs::{Context, MiddlewareCallback, Request, Response, RouteCallback};
+use futures::future::join_all;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -51,11 +53,6 @@ pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
      * Incoming Path
      */
     let path: String = header.get("path").unwrap().to_string().to_lowercase();
-    let path_split: Vec<String> = path
-        .split("/")
-        .filter(|s| s.len() > 0)
-        .map(|s| s.to_string())
-        .collect();
     /*
      * Next Execution
      */
@@ -84,86 +81,35 @@ pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
         /*
          * Routes
          */
-        let mut r: Vec<(String, fn(&mut Context) -> ())> = Vec::new();
-
-        if header.get("method").unwrap() == "GET" {
-            r = server.gets;
-        } else if header.get("method").unwrap() == "POST" {
-            r = server.posts;
-        } else if header.get("method").unwrap() == "PUT" {
-            r = server.puts;
-        } else if header.get("method").unwrap() == "DELETE" {
-            r = server.deletes;
-        } else if header.get("method").unwrap() == "PATCH" {
-            r = server.patchs;
-        }
+        let r: Vec<(String, RouteCallback)> = match header.get("method").unwrap().as_str() {
+            "GET" => server.gets,
+            "POST" => server.posts,
+            "PUT" => server.puts,
+            "DELETE" => server.deletes,
+            "PATCH" => server.patchs,
+            _ => Vec::new(),
+        };
 
         let mut is_found: bool = false;
+        /*
+         * Find & Call Route Callback
+         */
+        let found_callback_iter = r
+            .iter()
+            .map(|i| found_callback(path.clone(), i.0.to_lowercase()));
 
-        for i in r {
-            /*
-             * Current Path
-             */
-            let path_curr: String = i.0.to_lowercase();
-            /*
-             * Static Match
-             */
-            if path_curr == path {
-                (i.1)(&mut context);
-                is_found = true;
-                break;
-            }
-            /*
-             * Dynamic Match
-             */
-            let path_curr_split: Vec<String> = path_curr
-                .split("/")
-                .filter(|s| s.len() > 0)
-                .map(|s| s.to_string())
-                .collect();
+        let found_callback_iter: Vec<IsFound> = join_all(found_callback_iter).await;
 
-            /*
-             * Check Split Length
-             */
-            if path_curr_split.len() != path_split.len() {
-                continue;
-            }
-
-            let mut prepare_path: String = String::from("");
-
-            path_curr_split
-                .into_iter()
-                .enumerate()
-                .for_each(|(j, path_curr_elm)| {
-                    let path_char: String =
-                        path_curr_elm.clone().chars().nth(0).unwrap().to_string();
-                    /*
-                     * Dynamic Param
-                     */
-                    if path_char == ":" {
-                        prepare_path.push_str(&format!("/{}", path_curr_elm));
-
-                        context
-                            .request
-                            .params
-                            .insert(path_curr_elm.replace(":", ""), path_split[j].to_string());
-                    }
-                    /*
-                     * Static Param
-                     */
-                    else if path_curr_elm == path_split[j] {
-                        prepare_path.push_str(&format!("/{}", path_curr_elm));
-                    }
-                });
-            /*
-             * Match current path with prepare path
-             */
-            if path_curr == prepare_path {
-                (i.1)(&mut context);
+        for (i, el) in r.iter().enumerate() {
+            if found_callback_iter[i].found && found_callback_iter[i].path == el.0.to_lowercase() {
+                context.request.params = found_callback_iter[i].params.clone();
+                (el.1)(&mut context);
                 is_found = true;
                 break;
             }
         }
+
+        drop(found_callback_iter);
         /*
          * Error
          */

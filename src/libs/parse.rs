@@ -21,13 +21,17 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
     if path_split.get(0).is_some() {
         path = path_split[0].clone();
     }
+
     if path_split.get(1).is_some() {
         query = path_split[1].clone();
     }
+
+    drop(path_split);
     /*
      * Http Version
      */
     let mut http_version: String = "".to_string();
+
     if h_firstln.get(2).is_some() {
         http_version = match h_firstln[2].as_str() {
             "HTTP/3.0" => "3.0".to_string(),
@@ -45,6 +49,8 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
     header.insert("path".to_string(), path);
     header.insert("query".to_string(), query);
     header.insert("http-version".to_string(), http_version);
+
+    drop(h_firstln);
 
     h.iter().for_each(|ln| {
         let mut ln_split: Vec<String> = ln.split_whitespace().map(|s| s.to_string()).collect();
@@ -83,8 +89,8 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
 
         header.insert(k, v);
     });
-    /*
-     * Return Parsed Data
-     */
+
+    drop(h);
+
     header
 }

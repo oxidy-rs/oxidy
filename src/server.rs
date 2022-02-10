@@ -1,20 +1,18 @@
 use crate::libs::cpus::cpus;
 use crate::libs::listen::listen;
-use crate::structs::{Context, Middleware};
+use crate::structs::{MiddlewareCallback, RouteCallback};
 use std::net::TcpListener;
 use threadpool::ThreadPool;
-
-pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
 
 #[derive(Clone)]
 pub struct Server {
     pub(crate) middlewares: Vec<MiddlewareCallback>,
-    pub(crate) gets: Vec<(String, fn(&mut Context) -> ())>,
-    pub(crate) posts: Vec<(String, fn(&mut Context) -> ())>,
-    pub(crate) puts: Vec<(String, fn(&mut Context) -> ())>,
-    pub(crate) deletes: Vec<(String, fn(&mut Context) -> ())>,
-    pub(crate) patchs: Vec<(String, fn(&mut Context) -> ())>,
-    pub(crate) catchs: Option<fn(&mut Context) -> ()>,
+    pub(crate) gets: Vec<(String, RouteCallback)>,
+    pub(crate) posts: Vec<(String, RouteCallback)>,
+    pub(crate) puts: Vec<(String, RouteCallback)>,
+    pub(crate) deletes: Vec<(String, RouteCallback)>,
+    pub(crate) patchs: Vec<(String, RouteCallback)>,
+    pub(crate) catchs: Option<RouteCallback>,
     pub(crate) allow_threads: usize,
 }
 
@@ -64,7 +62,7 @@ impl Server {
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
     /// ```
-    pub fn get(&mut self, path: &str, callback: fn(&mut Context) -> ()) -> () {
+    pub fn get(&mut self, path: &str, callback: RouteCallback) -> () {
         self.gets.push((path.to_string(), callback));
     }
     /// POST Route
@@ -83,7 +81,7 @@ impl Server {
     /// let a = app.post("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn post(&mut self, path: &str, callback: fn(&mut Context) -> ()) -> () {
+    pub fn post(&mut self, path: &str, callback: RouteCallback) -> () {
         self.posts.push((path.to_string(), callback));
     }
     /// PUT Route
@@ -102,7 +100,7 @@ impl Server {
     /// let a = app.put("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn put(&mut self, path: &str, callback: fn(&mut Context) -> ()) -> () {
+    pub fn put(&mut self, path: &str, callback: RouteCallback) -> () {
         self.puts.push((path.to_string(), callback));
     }
     /// DELETE Route
@@ -121,7 +119,7 @@ impl Server {
     /// let a = app.delete("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn delete(&mut self, path: &str, callback: fn(&mut Context) -> ()) -> () {
+    pub fn delete(&mut self, path: &str, callback: RouteCallback) -> () {
         self.deletes.push((path.to_string(), callback));
     }
     /// PATCH Route
@@ -140,7 +138,7 @@ impl Server {
     /// let a = app.patch("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn patch(&mut self, path: &str, callback: fn(&mut Context) -> ()) -> () {
+    pub fn patch(&mut self, path: &str, callback: RouteCallback) -> () {
         self.patchs.push((path.to_string(), callback));
     }
     /// CATCH Method
@@ -161,7 +159,7 @@ impl Server {
     /// let a = app.catch(catch);
     /// assert_eq!((), a);
     /// ```
-    pub fn catch(&mut self, callback: fn(&mut Context) -> ()) -> () {
+    pub fn catch(&mut self, callback: RouteCallback) -> () {
         self.catchs = Some(callback);
     }
     /// Multi Threading
@@ -216,6 +214,8 @@ impl Server {
             let server_cp: Server = self.clone();
             pool_listener.execute(move || listen(listener_cp, server_cp));
         });
+
+        drop(size);
 
         pool_listener.join();
     }

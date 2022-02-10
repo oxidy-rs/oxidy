@@ -163,6 +163,7 @@ pub struct Context {
     /// }
     ///
     /// let mut app = Server::new();
+    /// app.middleware(mid);
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
     /// ```
@@ -172,3 +173,8 @@ pub struct Context {
  * Middleware Callback Return Type
  */
 pub type Middleware = (bool, Option<Box<dyn Fn(&mut Context) -> ()>>);
+pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
+/*
+ * Route Callback Return Type
+ */
+pub(crate) type RouteCallback = fn(&mut Context) -> ();
