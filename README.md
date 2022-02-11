@@ -2,44 +2,12 @@
 
 Super Fast & High Performance minimalist web framework for rust
 
-```rust
-use oxidy::structs::Context;
-use oxidy::server::Server;
-use oxidy::structs::Middleware;
-use std::time::Instant;
-
-fn mid(_: &mut Context) -> Middleware {
-    let start = Instant::now();
-    (
-        true,
-        Some(Box::new(move |_: &mut Context| {
-            let end = Instant::now();
-            println!("Response Time: {:?}", end.duration_since(start));
-        })),
-    )
-}
-
-fn index(ctx: &mut Context) -> () {
-    ctx.response.body = "Index Page".to_string();
-}
-
-fn main() {
-    let mut app = Server::new();
-    app.middleware(mid);
-    app.get("/", index);
-    app.listen("127.0.0.1:3000");
-}
-```
-
 ## Description
 
 Super Fast & High Performance minimalist web framework for rust built on top of
 rust standard library TcpListener & TcpStream.
 
-This project is highly inspired by
-
-- Nodejs Express
-- Nodejs Koa
+This project is highly inspired by Nodejs **Express & Koa**.
 
 ## Features
 
@@ -86,6 +54,37 @@ fn main() {
 
 - **cargo run** to run the server in development or **cargo run --release** to
   run the server in release profile.
+
+## Middleware
+
+```rust
+use oxidy::structs::Context;
+use oxidy::server::Server;
+use oxidy::structs::Middleware;
+use std::time::Instant;
+
+fn mid(_: &mut Context) -> Middleware {
+    let start = Instant::now();
+    (
+        true,
+        Some(Box::new(move |_: &mut Context| {
+            let end = Instant::now();
+            println!("Response Time: {:?}", end.duration_since(start));
+        })),
+    )
+}
+
+fn index(ctx: &mut Context) -> () {
+    ctx.response.body = "Index Page".to_string();
+}
+
+fn main() {
+    let mut app = Server::new();
+    app.middleware(mid);
+    app.get("/", index);
+    app.listen("127.0.0.1:3000");
+}
+```
 
 ## Benchmark
 

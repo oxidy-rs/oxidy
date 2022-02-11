@@ -7,6 +7,8 @@
 - Refactor from Loops to Iterators
 - Rename fork file with listen
 - Added "Futures" Crate
+- Better Memory Manage
+- Find Route Callback in Parallel (Improved Latency)
 
 # 0.3.1 (Alpha) | 2022-02-06
 
