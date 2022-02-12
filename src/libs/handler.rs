@@ -83,10 +83,10 @@ pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
          */
         let r: Vec<(String, RouteCallback)> = match header.get("method").unwrap().as_str() {
             "GET" => server.gets,
-            "POST" => server.posts,
-            "PUT" => server.puts,
-            "DELETE" => server.deletes,
-            "PATCH" => server.patchs,
+            // "POST" => server.posts,
+            // "PUT" => server.puts,
+            // "DELETE" => server.deletes,
+            // "PATCH" => server.patchs,
             _ => Vec::new(),
         };
 
@@ -103,7 +103,8 @@ pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
         for (i, el) in r.iter().enumerate() {
             if found_callback_iter[i].found && found_callback_iter[i].path == el.0.to_lowercase() {
                 context.request.params = found_callback_iter[i].params.clone();
-                (el.1)(&mut context);
+                let cb = el.1.lock().unwrap();
+                (cb)(&mut context).await;
                 is_found = true;
                 break;
             }
@@ -113,31 +114,33 @@ pub(crate) async fn handler(mut stream: TcpStream, server: Server) -> () {
         /*
          * Error
          */
-        if !is_found {
-            /*
-             * Status
-             */
-            context
-                .response
-                .header
-                .insert("status".to_string(), "404".to_string());
-            /*
-             * Check Catch Callback Exists
-             */
-            let catch_route: bool = match server.catchs {
-                None => false,
-                _ => true,
-            };
+        // if !is_found {
+        //     /*
+        //      * Status
+        //      */
+        //     context
+        //         .response
+        //         .header
+        //         .insert("status".to_string(), "404".to_string());
+        //     /*
+        //      * Check Catch Callback Exists
+        //      */
+        //     let catch_route: bool = match server.catchs {
+        //         None => false,
+        //         _ => true,
+        //     };
 
-            if catch_route {
-                (server.catchs).unwrap()(&mut context);
-            } else {
-                /*
-                 * Default Body
-                 */
-                context.response.body = "404 Not Found".to_string();
-            }
-        }
+        //     if catch_route {
+        //         let cb = server.catchs.unwrap().lock().unwrap();
+        //         let cb = *cb;
+        //         (cb)(&mut context).await;
+        //     } else {
+        //         /*
+        //          * Default Body
+        //          */
+        //         context.response.body = "404 Not Found".to_string();
+        //     }
+        // }
         /*
          * Middlewares End
          */

@@ -1,23 +1,26 @@
 use crate::libs::cpus::cpus;
+use crate::libs::default_context::default_context;
 use crate::libs::listen::listen;
-use crate::structs::{MiddlewareCallback, RouteCallback};
+use crate::structs::{Context, MiddlewareCallback, RouteCallback};
+use futures::Future;
 use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
 use threadpool::ThreadPool;
 
 #[derive(Clone)]
 pub struct Server {
     pub(crate) middlewares: Vec<MiddlewareCallback>,
     pub(crate) gets: Vec<(String, RouteCallback)>,
-    pub(crate) posts: Vec<(String, RouteCallback)>,
-    pub(crate) puts: Vec<(String, RouteCallback)>,
-    pub(crate) deletes: Vec<(String, RouteCallback)>,
-    pub(crate) patchs: Vec<(String, RouteCallback)>,
-    pub(crate) catchs: Option<RouteCallback>,
+    // pub(crate) posts: Vec<(String, RouteCallback)>,
+    // pub(crate) puts: Vec<(String, RouteCallback)>,
+    // pub(crate) deletes: Vec<(String, RouteCallback)>,
+    // pub(crate) patchs: Vec<(String, RouteCallback)>,
+    // pub(crate) catchs: Option<RouteCallback>,
     pub(crate) allow_threads: usize,
 }
 
 impl Server {
-    /// Middlewares
+    /* /// Middlewares
     ///
     /// # Example
     ///
@@ -42,11 +45,11 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.middleware(mid);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub fn middleware(&mut self, callback: MiddlewareCallback) -> () {
         self.middlewares.push(callback);
     }
-    /// GET Route
+    /* /// GET Route
     ///
     /// # Example
     ///
@@ -61,11 +64,20 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
-    /// ```
-    pub fn get(&mut self, path: &str, callback: RouteCallback) -> () {
-        self.gets.push((path.to_string(), callback));
+    /// ``` */
+    pub fn get<F, Fcb>(&mut self, path: &str, callback: F) -> ()
+    where
+        F: Fn(&mut Context) -> Fcb + 'static + Send,
+        Fcb: Future<Output = ()> + 'static + Send,
+    {
+        self.gets.push((
+            path.to_string(),
+            Arc::new(Mutex::new(Box::new(move |_| {
+                Box::pin(callback(&mut default_context()))
+            }))),
+        ));
     }
-    /// POST Route
+    /* /// POST Route
     ///
     /// # Example
     ///
@@ -80,11 +92,12 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.post("/", user);
     /// assert_eq!((), a);
-    /// ```
-    pub fn post(&mut self, path: &str, callback: RouteCallback) -> () {
-        self.posts.push((path.to_string(), callback));
-    }
-    /// PUT Route
+    /// ``` */
+    // pub fn post(&mut self, path: &str, callback: impl Future<Output = ()> + 'static + Send) -> () {
+    //     self.posts
+    //         .push((path.to_string(), Arc::new(Mutex::new(Box::pin(callback)))));
+    // }
+    /* /// PUT Route
     ///
     /// # Example
     ///
@@ -99,11 +112,12 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.put("/", user);
     /// assert_eq!((), a);
-    /// ```
-    pub fn put(&mut self, path: &str, callback: RouteCallback) -> () {
-        self.puts.push((path.to_string(), callback));
-    }
-    /// DELETE Route
+    /// ``` */
+    // pub fn put(&mut self, path: &str, callback: impl Future<Output = ()> + 'static + Send) -> () {
+    //     self.puts
+    //         .push((path.to_string(), Arc::new(Mutex::new(Box::pin(callback)))));
+    // }
+    /* /// DELETE Route
     ///
     /// # Example
     ///
@@ -118,11 +132,16 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.delete("/", user);
     /// assert_eq!((), a);
-    /// ```
-    pub fn delete(&mut self, path: &str, callback: RouteCallback) -> () {
-        self.deletes.push((path.to_string(), callback));
-    }
-    /// PATCH Route
+    /// ``` */
+    // pub fn delete(
+    //     &mut self,
+    //     path: &str,
+    //     callback: impl Future<Output = ()> + 'static + Send,
+    // ) -> () {
+    //     self.deletes
+    //         .push((path.to_string(), Arc::new(Mutex::new(Box::pin(callback)))));
+    // }
+    /* /// PATCH Route
     ///
     /// # Example
     ///
@@ -137,11 +156,12 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.patch("/", user);
     /// assert_eq!((), a);
-    /// ```
-    pub fn patch(&mut self, path: &str, callback: RouteCallback) -> () {
-        self.patchs.push((path.to_string(), callback));
-    }
-    /// CATCH Method
+    /// ``` */
+    // pub fn patch(&mut self, path: &str, callback: impl Future<Output = ()> + 'static + Send) -> () {
+    //     self.patchs
+    //         .push((path.to_string(), Arc::new(Mutex::new(Box::pin(callback)))));
+    // }
+    /* /// CATCH Method
     ///
     /// Catch Function will call on any HTTP Error
     ///
@@ -158,10 +178,10 @@ impl Server {
     /// let mut app = Server::new();
     /// let a = app.catch(catch);
     /// assert_eq!((), a);
-    /// ```
-    pub fn catch(&mut self, callback: RouteCallback) -> () {
-        self.catchs = Some(callback);
-    }
+    /// ``` */
+    // pub fn catch(&mut self, callback: impl Future<Output = ()> + 'static + Send) -> () {
+    //     self.catchs = Some(Arc::new(Mutex::new(Box::pin(callback))));
+    // }
     /// Multi Threading
     ///
     /// Number of Threads
@@ -220,7 +240,7 @@ impl Server {
         pool_listener.join();
     }
 }
-/// New Server Instence
+/* /// New Server Instence
 ///
 /// # Example
 ///
@@ -239,9 +259,9 @@ impl Server {
 /// let mut app = Server::new();
 /// app.get("/", index);
 /// app.post("/", user);
-/// ```
+/// ``` */
 impl Server {
-    /// New Server Instence
+    /* /// New Server Instence
     ///
     /// # Example
     ///
@@ -260,16 +280,16 @@ impl Server {
     /// let mut app = Server::new();
     /// app.get("/", index);
     /// app.post("/", user);
-    /// ```
+    /// ``` */
     pub fn new() -> Server {
         Server {
             middlewares: Vec::new(),
             gets: Vec::new(),
-            posts: Vec::new(),
-            puts: Vec::new(),
-            deletes: Vec::new(),
-            patchs: Vec::new(),
-            catchs: None,
+            // posts: Vec::new(),
+            // puts: Vec::new(),
+            // deletes: Vec::new(),
+            // patchs: Vec::new(),
+            // catchs: None,
             allow_threads: 0,
         }
     }

@@ -70,6 +70,8 @@ pub(crate) async fn found_callback(path: String, path_curr: String) -> IsFound {
             }
         });
 
+    drop(path);
+
     /*
      * Match current path with prepare path
      */
@@ -84,6 +86,6 @@ pub(crate) async fn found_callback(path: String, path_curr: String) -> IsFound {
     IsFound {
         found: false,
         path: "".to_string(),
-        params: HashMap::new(),
+        params,
     }
 }

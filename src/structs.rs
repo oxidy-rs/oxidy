@@ -1,10 +1,12 @@
+use futures::future::BoxFuture;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 /*
  * Request
  */
 pub struct Request {
-    /// Get Request Haders
+    /* /// Get Request Haders
     ///
     /// # Example
     ///
@@ -20,9 +22,9 @@ pub struct Request {
     /// let mut app = Server::new();
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub header: HashMap<String, String>,
-    /// Get Request Parameters
+    /* /// Get Request Parameters
     ///
     /// # Example
     ///
@@ -38,12 +40,12 @@ pub struct Request {
     /// let mut app = Server::new();
     /// let a = app.get("/:user", user);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub params: HashMap<String, String>,
 }
 
 impl Request {
-    /// Get Request Query Strings
+    /* /// Get Request Query Strings
     ///
     /// # Example
     ///
@@ -59,7 +61,7 @@ impl Request {
     /// let mut app = Server::new();
     /// let a = app.get("/user?user=username", user);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub fn query(&self) -> HashMap<String, String> {
         let mut query_str: HashMap<String, String> = HashMap::new();
 
@@ -99,7 +101,7 @@ impl Request {
  * Response
  */
 pub struct Response {
-    /// Set, Change & Remove Response Headers
+    /* /// Set, Change & Remove Response Headers
     ///
     /// # Example
     ///
@@ -115,9 +117,9 @@ pub struct Response {
     /// let mut app = Server::new();
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub header: HashMap<String, String>,
-    /// Get & Set Response Body
+    /* /// Get & Set Response Body
     ///
     /// # Example
     ///
@@ -137,7 +139,7 @@ pub struct Response {
     /// let mut app = Server::new();
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub body: String,
 }
 /*
@@ -146,7 +148,7 @@ pub struct Response {
 pub struct Context {
     pub request: Request,
     pub response: Response,
-    /// State of Key Value pair to transfer data between Middlewares or Routes
+    /* /// State of Key Value pair to transfer data between Middlewares or Routes
     ///
     /// # Example
     ///
@@ -166,7 +168,7 @@ pub struct Context {
     /// app.middleware(mid);
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
-    /// ```
+    /// ``` */
     pub state: HashMap<String, String>,
 }
 /*
@@ -177,4 +179,5 @@ pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
 /*
  * Route Callback Return Type
  */
-pub(crate) type RouteCallback = fn(&mut Context) -> ();
+pub(crate) type RouteCallback =
+    Arc<Mutex<Box<dyn Fn(&mut Context) -> BoxFuture<'static, ()> + 'static + Send>>>;
