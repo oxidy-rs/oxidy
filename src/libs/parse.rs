@@ -10,7 +10,7 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
     let mut path_split: Vec<String> = vec!["/".to_string()];
 
     if h_firstln.get(1).is_some() {
-        path_split = h_firstln[1].split("?").map(|s| s.to_string()).collect();
+        path_split = h_firstln[1].split('?').map(|s| s.to_string()).collect();
     }
     /*
      * Separate Path & Query
@@ -54,7 +54,7 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
 
     h.iter().for_each(|ln| {
         let mut ln_split: Vec<String> = ln.split_whitespace().map(|s| s.to_string()).collect();
-        if ln_split.len() < 1 {
+        if ln_split.is_empty() {
             return;
         }
         /*
@@ -71,7 +71,7 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
          */
         let k: Vec<String> = k.split_whitespace().map(|s| s.to_string()).collect();
         let k: String = k.join("");
-        if k.len() < 1 {
+        if k.is_empty() {
             return;
         }
         /*
@@ -80,10 +80,10 @@ pub(crate) async fn parse(str: String) -> HashMap<String, String> {
         let mut v: String = "".to_string();
 
         if ln_split.get(1).is_some() {
-            v = ln_split[1].clone().to_string();
+            v = ln_split[1].clone();
             if ln_split.len() > 2 {
                 ln_split.remove(0);
-                v = ln_split.join(" ").to_string();
+                v = ln_split.join(" ");
             }
         }
 

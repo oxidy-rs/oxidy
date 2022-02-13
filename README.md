@@ -41,7 +41,7 @@ oxidy = "<version>"
 use oxidy::structs::Context;
 use oxidy::server::Server;
 
-fn index(ctx: &mut Context) -> () {
+fn index(ctx: &mut Context) {
     ctx.response.body = "Index Page".to_string();
 }
 
@@ -74,7 +74,7 @@ fn mid(_: &mut Context) -> Middleware {
     )
 }
 
-fn index(ctx: &mut Context) -> () {
+fn index(ctx: &mut Context) {
     ctx.response.body = "Index Page".to_string();
 }
 

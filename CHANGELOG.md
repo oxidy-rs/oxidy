@@ -1,3 +1,7 @@
+#
+
+- Refactor suggestion given by cargo clippy
+
 # 0.4.0 (Alpha) | 2022-02-13
 
 - Removed Unnecessary Codes & variables & Loops

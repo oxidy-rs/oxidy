@@ -22,8 +22,8 @@ pub(crate) async fn found_callback(path: String, path_curr: String) -> IsFound {
     }
 
     let path_split: Vec<String> = path
-        .split("/")
-        .filter(|s| s.len() > 0)
+        .split('/')
+        .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .collect();
 
@@ -31,8 +31,8 @@ pub(crate) async fn found_callback(path: String, path_curr: String) -> IsFound {
      * Dynamic Match
      */
     let path_curr_split: Vec<String> = path_curr
-        .split("/")
-        .filter(|s| s.len() > 0)
+        .split('/')
+        .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .collect();
 
@@ -54,7 +54,7 @@ pub(crate) async fn found_callback(path: String, path_curr: String) -> IsFound {
         .into_iter()
         .enumerate()
         .for_each(|(j, path_curr_elm)| {
-            let path_char: String = path_curr_elm.clone().chars().nth(0).unwrap().to_string();
+            let path_char: String = path_curr_elm.chars().next().unwrap().to_string();
             /*
              * Dynamic Param
              */

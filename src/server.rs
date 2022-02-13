@@ -4,7 +4,7 @@ use crate::structs::{MiddlewareCallback, RouteCallback};
 use std::net::TcpListener;
 use threadpool::ThreadPool;
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct Server {
     pub(crate) middlewares: Vec<MiddlewareCallback>,
     pub(crate) gets: Vec<(String, RouteCallback)>,
@@ -43,7 +43,7 @@ impl Server {
     /// let a = app.middleware(mid);
     /// assert_eq!((), a);
     /// ```
-    pub fn middleware(&mut self, callback: MiddlewareCallback) -> () {
+    pub fn middleware(&mut self, callback: MiddlewareCallback) {
         self.middlewares.push(callback);
     }
     /// GET Route
@@ -54,7 +54,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn index (_: &mut Context) -> () {
+    /// fn index (_: &mut Context) {
     ///     println!("Index GET Function");
     /// }
     ///
@@ -62,7 +62,7 @@ impl Server {
     /// let a = app.get("/", index);
     /// assert_eq!((), a);
     /// ```
-    pub fn get(&mut self, path: &str, callback: RouteCallback) -> () {
+    pub fn get(&mut self, path: &str, callback: RouteCallback) {
         self.gets.push((path.to_string(), callback));
     }
     /// POST Route
@@ -73,7 +73,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (_: &mut Context) -> () {
+    /// fn user (_: &mut Context) {
     ///     println!("User POST Function");
     /// }
     ///
@@ -81,7 +81,7 @@ impl Server {
     /// let a = app.post("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn post(&mut self, path: &str, callback: RouteCallback) -> () {
+    pub fn post(&mut self, path: &str, callback: RouteCallback) {
         self.posts.push((path.to_string(), callback));
     }
     /// PUT Route
@@ -92,7 +92,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (_: &mut Context) -> () {
+    /// fn user (_: &mut Context) {
     ///     println!("User PUT Function");
     /// }
     ///
@@ -100,7 +100,7 @@ impl Server {
     /// let a = app.put("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn put(&mut self, path: &str, callback: RouteCallback) -> () {
+    pub fn put(&mut self, path: &str, callback: RouteCallback) {
         self.puts.push((path.to_string(), callback));
     }
     /// DELETE Route
@@ -111,7 +111,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (_: &mut Context) -> () {
+    /// fn user (_: &mut Context) {
     ///     println!("User DELETE Function");
     /// }
     ///
@@ -119,7 +119,7 @@ impl Server {
     /// let a = app.delete("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn delete(&mut self, path: &str, callback: RouteCallback) -> () {
+    pub fn delete(&mut self, path: &str, callback: RouteCallback) {
         self.deletes.push((path.to_string(), callback));
     }
     /// PATCH Route
@@ -130,7 +130,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (_: &mut Context) -> () {
+    /// fn user (_: &mut Context) {
     ///     println!("User PATCH Function");
     /// }
     ///
@@ -138,7 +138,7 @@ impl Server {
     /// let a = app.patch("/", user);
     /// assert_eq!((), a);
     /// ```
-    pub fn patch(&mut self, path: &str, callback: RouteCallback) -> () {
+    pub fn patch(&mut self, path: &str, callback: RouteCallback) {
         self.patchs.push((path.to_string(), callback));
     }
     /// CATCH Method
@@ -151,7 +151,7 @@ impl Server {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn catch (_: &mut Context) -> () {
+    /// fn catch (_: &mut Context) {
     ///     println!("CATCH Function");
     /// }
     ///
@@ -159,13 +159,13 @@ impl Server {
     /// let a = app.catch(catch);
     /// assert_eq!((), a);
     /// ```
-    pub fn catch(&mut self, callback: RouteCallback) -> () {
+    pub fn catch(&mut self, callback: RouteCallback) {
         self.catchs = Some(callback);
     }
     /// Multi Threading
     ///
     /// Number of Threads
-    /// Default is 0 (Zero) Number of total CPU CORE
+    /// Default is 0 (Zero). Total number of total CPU cores
     ///
     /// # Example
     ///
@@ -176,7 +176,7 @@ impl Server {
     /// let a = app.threads(1);
     /// assert_eq!((), a);
     /// ```
-    pub fn threads(&mut self, allow: usize) -> () {
+    pub fn threads(&mut self, allow: usize) {
         self.allow_threads = allow;
     }
     /* /// Listen
@@ -190,7 +190,7 @@ impl Server {
     /// let a = app.listen("127.0.0.1:3000");
     /// assert_eq!((), a);
     /// ``` */
-    pub fn listen(&self, address: &'static str) -> () {
+    pub fn listen(&self, address: &'static str) {
         /*
          * Bind Server
          */
@@ -215,8 +215,6 @@ impl Server {
             pool_listener.execute(move || listen(listener_cp, server_cp));
         });
 
-        drop(size);
-
         pool_listener.join();
     }
 }
@@ -228,11 +226,11 @@ impl Server {
 /// use oxidy::server::Server;
 /// use oxidy::structs::Context;
 ///
-/// fn index (_: &mut Context) -> () {
+/// fn index (_: &mut Context) {
 ///     println!("Index GET Function");
 /// }
 ///
-/// fn user (_: &mut Context) -> () {
+/// fn user (_: &mut Context) {
 ///     println!("User POST Function");
 /// }
 ///
@@ -249,11 +247,11 @@ impl Server {
     /// use oxidy::server::Server;
     /// use oxidy::structs::Context;
     ///
-    /// fn index (_: &mut Context) -> () {
+    /// fn index (_: &mut Context) {
     ///     println!("Index GET Function");
     /// }
     ///
-    /// fn user (_: &mut Context) -> () {
+    /// fn user (_: &mut Context) {
     ///     println!("User POST Function");
     /// }
     ///
@@ -263,14 +261,7 @@ impl Server {
     /// ```
     pub fn new() -> Server {
         Server {
-            middlewares: Vec::new(),
-            gets: Vec::new(),
-            posts: Vec::new(),
-            puts: Vec::new(),
-            deletes: Vec::new(),
-            patchs: Vec::new(),
-            catchs: None,
-            allow_threads: 0,
+            ..Default::default()
         }
     }
 }

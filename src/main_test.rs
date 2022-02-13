@@ -7,7 +7,7 @@ mod structs;
 use server::Server;
 use structs::Context;
 
-fn index(ctx: &mut Context) -> () {
+fn index(ctx: &mut Context) {
     ctx.response.body = "Hello World".to_string();
 }
 

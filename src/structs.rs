@@ -13,7 +13,7 @@ pub struct Request {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn index (ctx: &mut Context) -> () {
+    /// fn index (ctx: &mut Context) {
     ///     let path = ctx.request.header.get("path").unwrap();
     ///     println!("Path: {}", path);
     /// }
@@ -31,7 +31,7 @@ pub struct Request {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (ctx: &mut Context) -> () {
+    /// fn user (ctx: &mut Context) {
     ///     let user = ctx.request.params.get("user").unwrap();
     ///     println!("User is: {}", user);
     /// }
@@ -52,7 +52,7 @@ impl Request {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn user (ctx: &mut Context) -> () {
+    /// fn user (ctx: &mut Context) {
     ///     let user: String = ctx.request.query().get("user").unwrap().to_string();
     ///     println!("User is: {}", user);
     /// }
@@ -66,16 +66,16 @@ impl Request {
 
         let query_hstr: String = self.header.get("query").unwrap().to_string();
 
-        if query_hstr.len() < 1 {
+        if query_hstr.is_empty() {
             return query_str;
         }
 
-        let query_split: Vec<String> = query_hstr.split("&").map(|s| s.to_string()).collect();
+        let query_split: Vec<String> = query_hstr.split('&').map(|s| s.to_string()).collect();
 
         query_split.iter().for_each(|q| {
-            let mut kv: Vec<String> = q.split("=").map(|s| s.to_string()).collect();
+            let mut kv: Vec<String> = q.split('=').map(|s| s.to_string()).collect();
 
-            if kv.get(0).is_none() || kv[0].len() < 1 {
+            if kv.get(0).is_none() || kv[0].is_empty() {
                 return;
             }
 
@@ -86,7 +86,7 @@ impl Request {
                 v = kv[1].clone();
                 if kv.len() > 2 {
                     kv.remove(0);
-                    v = kv.join("=").to_string();
+                    v = kv.join("=");
                 }
             }
 
@@ -109,7 +109,7 @@ pub struct Response {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn index (ctx: &mut Context) -> () {
+    /// fn index (ctx: &mut Context) {
     ///     ctx.response.header.insert("status".to_string(), "200".to_string());
     ///     ctx.response.body = "<h1>Hello World</h1>".to_string();
     /// }
@@ -127,7 +127,7 @@ pub struct Response {
     /// use oxidy::structs::Context;
     /// use oxidy::server::Server;
     ///
-    /// fn index (ctx: &mut Context) -> () {
+    /// fn index (ctx: &mut Context) {
     ///     /* To Get Body */
     ///     let body = &ctx.response.body;
     ///     println!("{}", body);
@@ -155,13 +155,15 @@ pub struct Context {
     ///
     /// ```
     /// use oxidy::structs::Context;
+    /// use oxidy::structs::Middleware;
     /// use oxidy::server::Server;
     ///
-    /// fn mid (ctx: &mut Context) -> () {
+    /// fn mid (ctx: &mut Context) -> Middleware {
     ///     ctx.state.insert("user".to_string(), "username".to_string());
+    ///     (true, None)
     /// }
     ///
-    /// fn index (ctx: &mut Context) -> () {
+    /// fn index (ctx: &mut Context) {
     ///     ctx.response.body = ctx.state.get("user").unwrap().to_string();
     /// }
     ///
@@ -175,9 +177,9 @@ pub struct Context {
 /*
  * Middleware Callback Return Type
  */
-pub type Middleware = (bool, Option<Box<dyn Fn(&mut Context) -> ()>>);
+pub type Middleware = (bool, Option<Box<dyn Fn(&mut Context)>>);
 pub(crate) type MiddlewareCallback = fn(&mut Context) -> Middleware;
 /*
  * Route Callback Return Type
  */
-pub(crate) type RouteCallback = fn(&mut Context) -> ();
+pub(crate) type RouteCallback = fn(&mut Context);
