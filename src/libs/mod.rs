@@ -1,5 +1,4 @@
 pub(crate) mod cpus;
-pub(crate) mod default_context;
 pub(crate) mod found_callback;
 pub(crate) mod handler;
 pub(crate) mod http_status_string;

@@ -7,13 +7,8 @@ mod structs;
 use server::Server;
 use structs::Context;
 
-async fn p_hello() -> () {
-    println!("Hello World");
-}
-
-async fn index(ctx: &mut Context) -> () {
+fn index(ctx: &mut Context) -> () {
     ctx.response.body = "Hello".to_string();
-    p_hello().await;
 }
 
 fn main() {
