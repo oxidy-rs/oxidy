@@ -8,7 +8,7 @@ use server::Server;
 use structs::Context;
 
 fn index(ctx: &mut Context) -> () {
-    ctx.response.body = "Hello".to_string();
+    ctx.response.body = "Hello World".to_string();
 }
 
 fn main() {

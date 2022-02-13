@@ -1,4 +1,4 @@
-# 0.4.0 (Alpha) |
+# 0.4.0 (Alpha) | 2022-02-13
 
 - Removed Unnecessary Codes & variables & Loops
 - Replace own Threadpool with "threadpool" Crate

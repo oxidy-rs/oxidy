@@ -1,1 +1,2 @@
+- All functions async/await capable
 - View Engine/Template
