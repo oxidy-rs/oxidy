@@ -1,54 +1,56 @@
 # oxidy
 
-Super Fast & High Performance minimalist web framework for rust
+Fast & Minimum Web Framework for Rust.
 
-## Description
+Built on top of Tokio Tcp with Tokio Runtime.
 
-Super Fast & High Performance minimalist web framework for rust built on top of
-rust standard library TcpListener & TcpStream.
-
-This project is highly inspired by Nodejs **Express & Koa**.
+This project is highly inspired by **express.js**, **koa.js** & **warp.rs**.
 
 ## Features
 
-- Main Focus on Super Fast & High Performance
+- Main Focus on Fast & Performance
 - Very minimum LOC (Lines of code)
 - No Unsafe Code
+- Tokio Tcp
+- Tokio Runtime
 - Robust Routing
-- Allow Middlewares
+- Allow Middleware
 - Easy to build your own middleware
 - Allow Multi Threading
 - Allow Concurrency
+- Full Async/Await Support
 
 ## Install
 
 This is a crate (Rust Module) available on
-[crate.io](https://crates.io/crates/oxidy). Before install
-[download & install rust](https://www.rust-lang.org/).
+[crate.io](https://crates.io/crates/oxidy). Before install oxidy
+[download & install Rust](https://www.rust-lang.org/).
 
 ## Quick Start
 
-- Add **oxidy** to your dependency in **Cargo.toml** file
+- Add **oxidy** & **tokio** to your dependency in **Cargo.toml** file
 
 ```
 [dependencies]
 oxidy = "<version>"
+tokio = { version = "<version>", features = ["full"] }
 ```
 
 - Paste this code below in your **src/main.rs** file
 
 ```rust
-use oxidy::structs::Context;
-use oxidy::server::Server;
+use oxidy::{Server, Context, Returns, route};
 
-fn index(ctx: &mut Context) {
-    ctx.response.body = "Index Page".to_string();
+async fn route(mut c: Context) -> Returns {
+    c.response.body = "Hello World".to_owned();
+    (c, None)
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let mut app = Server::new();
-    app.get("/", index);
-    app.listen("127.0.0.1:3000");
+    app.add(route!("get /", route));
+    app.run("127.0.0.1:3000").await;
 }
 ```
 
@@ -58,52 +60,55 @@ fn main() {
 ## Middleware
 
 ```rust
-use oxidy::structs::Context;
-use oxidy::server::Server;
-use oxidy::structs::Middleware;
 use std::time::Instant;
+use oxidy::{Server, Context, Returns, route, middleware, tail};
 
-fn mid(_: &mut Context) -> Middleware {
+async fn mid(mut c: Context) -> Returns {
     let start = Instant::now();
-    (
-        true,
-        Some(Box::new(move |_: &mut Context| {
-            let end = Instant::now();
-            println!("Response Time: {:?}", end.duration_since(start));
-        })),
-    )
+    println!("Middleware Function");
+    c.response.body = "Middleware Function".to_owned();
+    c.next = true;
+
+    tail!{
+        c,
+        {
+            println!("Tail Function");
+            c.response.body = "Tail Function".to_owned();
+            println!("Response Time: {:?}", Instant::now().duration_since(start));
+            c
+        }
+    }
 }
 
-fn index(ctx: &mut Context) {
-    ctx.response.body = "Index Page".to_string();
+async fn route(mut c: Context) -> Returns {
+    println!("Route Function");
+    c.response.body = "Hello World".to_owned();
+    (c, None)
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let mut app = Server::new();
-    app.middleware(mid);
-    app.get("/", index);
-    app.listen("127.0.0.1:3000");
+    app.add(middleware!(mid));
+    app.add(route!("get /", route));
+    app.run("127.0.0.1:3000").await;
 }
 ```
 
-## Benchmark
+## Note
 
-### Apache Bench:
-
-oxidy | Req/Sec: 16.5K | Latency: 60MS
-
-actix web | Req/Sec: 15.5K | Latency: 63MS
-
-### Loadtest
-
-oxidy | Req/Sec: 4.5K | Latency: 219MS
-
-actix web | Req/Sec: 2.9K | Latency: 339MS
-
-[Check Full Benchmark](https://github.com/oxidy-rs/oxidy/blob/master/benchmark)
-
-Tested (2022-02-06) On Rust Stable Version & Edition 2021 With Release Flag
+- There is no difference between route & middleware in oxidy. All are same &
+  identical.
+- Try to use oxidy `profile.release` configuration to get highly optimize build.
+  [Cargo.toml](Cargo.toml)
+- This project is still in **Alpha**.
 
 # License
 
-GNU GPL v2.0
+This project is licensed under the **MIT** | [View License](LICENSE)
+
+# Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for this project by you, shall be licensed as **MIT**, without any additional
+terms or conditions.

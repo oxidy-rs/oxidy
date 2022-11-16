@@ -1,6 +1,22 @@
-#
+# Changelog
 
+# 0.5.0 (Alpha) |
+
+- Refactor File & Folder Structure
 - Refactor suggestion given by cargo clippy
+- Full async/await support
+- Improved Middleware for async/await
+- Added Route & Middleware macro for better DX
+- Added Json Response
+- Moved from threadpool completely to Tokio Runtime
+- Moved from Standard Tcp to Tokio Tcp
+- Added Exception for Debug
+- Added Code of Conduct
+- Changed License
+
+### Breaking
+
+- Rewrite Entire Codebase (Everything)
 
 # 0.4.0 (Alpha) | 2022-02-13
 
@@ -21,10 +37,9 @@
 - Improved Query Parser
 - Added Benchmark
 
-## Breaking
+### Breaking
 
-- Refactor Request Query from Variable to Function (In order to gain more
-  performance)
+- Refactor Request Query from Variable to Function (To gain more performance)
 
 # 0.2.1 (Alpha) | 2022-02-05
 
